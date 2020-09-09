@@ -1,13 +1,15 @@
-import React,{useState} from 'react';
+import React,{useState, useEffect} from 'react';
 import marked from 'marked';
-import {Row, Col, Input, Select, Button,DatePicker } from 'antd';
+import axios from 'axios';
+import servicePath from '../config/apiUrl'
+// eslint-disable-next-line
+import {Row, Col, Input, Select, Button, DatePicker, message } from 'antd';
 import '../static/css/AddArticle.css'
-// eslint-disable-next-line
 const {Option} = Select;  // 相当于 const Option = Select.Option
-// eslint-disable-next-line
 const {TextArea} =  Input; 
 
-const AddArticle = () => {
+
+const AddArticle = (props) => {
     // 设置marked
     marked.setOptions({
         renderer: marked.Renderer(),
@@ -37,9 +39,7 @@ const AddArticle = () => {
     const [ showDate, setShowData ] = useState()                     // 发布的时间
     // eslint-disable-next-line
     const [ upDate, setUpDate ] = useState()                         // 更新的时间
-      // eslint-disable-next-line
     const [ typeInfoList, setTypeInfoList ] = useState([])           // 文章的类别 列表
-      // eslint-disable-next-line
     const [ selectType, setSelectType ] = useState(1)                // 默认为第一个
     
     // 编写实时预览的 函数 两个 Html 都需要
@@ -58,6 +58,86 @@ const AddArticle = () => {
         let html = marked(e.target.value)
         setIntroduceHtml(html)
     }
+
+    // 前后端交互 进行 获取 列表的操作
+    const getTypeInfo = () => {
+        // 因为这个地方 是需要进行cookie 验证的 所以必须要带着 cookie 否则是不会成功的
+        axios({
+            method:'get',
+            url:servicePath.getTypeInfo,
+            header:{ 'Access-Control-Allow-Origin':'*' },
+            withCredentials: true
+        }).then((res) => {
+            // eslint-disable-next-line
+            console.log(`res 中的数据是什么${res.data.data}`)
+            if(res.data.data === '没有登录') {
+                console.log('没有登录')
+                localStorage.removeItem('openId');
+                props.history.push('/')
+            } else {
+                console.log('已经登陆了')
+                console.log(res.data.data)
+                setTypeInfoList(res.data.data)
+            }
+        });
+    }
+
+    // 选择 blog 的内容
+    const selectTypeHandler = (value) => {
+        console.log(value);
+        setSelectType(value); // 将 type设置为 传进来的 value
+    }
+
+    // 文章进行保存 校验 
+    const saveArticle = () => {
+        // 进行教研
+        if (articleTitle === ''){
+            message.error('文章题目不能为空')
+            return false
+        }else if (articleContent === ''){
+            message.error('文章内容不能为空')
+            return false
+        }else if (introduce === ''){
+            message.error('文章简介不能为空')
+            return false
+        }else if (!showDate){
+            message.error('发布日期不能为空')
+            return false
+        }
+
+        // 文章通过校验 
+        const dataProps = {} // 传递给后台的参数
+        dataProps.type_id = selectType;
+        dataProps.title = articleTitle;
+        dataProps.article_content = articleContent;
+        dataProps.introduce = introduce;
+        dataProps.addTime = showDate;
+
+        // 如果文章 是第一次 编辑
+        if (articleId === 0){
+            dataProps.view_count = Math.ceil(Math.random()*100) + 1000; //ceil 向上取整
+            axios({
+                method:'post',
+                url:servicePath.addArticle,
+                data:dataProps,
+                withCredentials:true
+            }).then((res) => {
+                // setArticleId(res.data.insertId)
+                console.log(res.data);
+                if (res.data.isScussess) {
+                    message.success('文章保存成功');
+                }else {
+                    message.error('文章保存失败');
+                }
+            })
+        }
+    }
+    
+    // 在useEffect 中进行使用
+    useEffect(() => {
+        getTypeInfo();
+    // eslint-disable-next-line
+    },[])   // 如果什么东西都不加 表示 就是当组件将被销毁时才进行解绑
     
 
     return (
@@ -68,13 +148,21 @@ const AddArticle = () => {
                 <Col span={20}>
                     <Input 
                           placeholder="博客标题" 
-                          size="large" />
+                          size="large" 
+                          onChange = {(e) => {
+                              console.log(e.target.value)
+                              setArticleTitle(e.target.value)
+                          }}
+                    />
                 </Col>
                 <Col span={4}>
                    
-                    <Select defaultValue="jisuBlog" size="large">
-                        <Option value="jisuBlog">技术Blog</Option>
-                        <Option value="shenghuoBlog">生活Blog</Option>
+                    <Select defaultValue={selectType} size="large" onChange = {selectTypeHandler} >
+                        {
+                            typeInfoList.map((item, index) => {
+                            return (<Option key = {index} value = {item.Id} >{item.typeName}</Option>)
+                            })
+                        }
                     </Select>
                 </Col>
             </Row>
@@ -106,7 +194,7 @@ const AddArticle = () => {
             <Col span ={24}>
                 
                 <Button size = "mid" >暂存文章</Button>&nbsp;&nbsp;
-                <Button type = "primary" size = "mid" >发布文章</Button>
+                <Button type = "primary" size = "mid" onClick = {saveArticle}>发布文章</Button>
             </Col>
         </Row>
 
@@ -134,7 +222,12 @@ const AddArticle = () => {
                 <div className="date-select">
                     <DatePicker
                         placeholder="发布日期"
-                        size="large"  
+                        size="large"
+                        onChange = {(value, dataSting) => {
+                            console.log(`${value}++++${dataSting}`);
+                            // 将时间进行选择 关于data-select 的两个参数 value 以及 dataSting  都可以在antd 上找到
+                            setShowData(dataSting)  // set 进去
+                        }}  
                     />
                 </div>
             </Col>

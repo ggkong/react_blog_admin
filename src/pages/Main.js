@@ -8,7 +8,7 @@ const Main = () => {
     return(
         <div>
         <Router>
-            <Route path = "/login/"  component = {Login}  />
+            <Route path = "/" exact  component = {Login}  />
             <Route path = "/index/" component = {AdminIndex}/>
         </Router>
         </div>

@@ -1,27 +1,49 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import { Layout, Menu, Breadcrumb, message } from 'antd';
 import {
   PieChartOutlined,
   FileOutlined,
   TeamOutlined,
   EditOutlined,
-  RadarChartOutlined
+  RadarChartOutlined,
+  PoweroffOutlined
   
 } from '@ant-design/icons';
 import '../static/css/AdminIndex.css'
-// import { Route } from 'react-router-dom';
 import AddArticle from './AddArticle';
+// eslint-disable-next-line
 import { BrowserRouter as Router, Route } from 'react-router-dom'
+import Axios from 'axios';
+import servicePath from '../config/apiUrl'
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
-const AdminIndex = () => {
+const AdminIndex = (props) => {
   const [collapsed,setCollapsed ] =  useState(false);
 
   const onCollapse = collapsed => {
     console.log(collapsed);
     setCollapsed(collapsed)
   };
+  
+  const handleExit = () => {
+    localStorage.removeItem('openId');
+    Axios({
+        method: 'get',
+        url: servicePath.outLogin,
+        header:{ 'Access-Control-Allow-Origin':'*' },
+        withCredentials:true
+    }).then((res) => {
+        if(res.data.data === 'success'){
+            message.success = '退出成功'
+            setTimeout(() => {
+                props.history.push('/');
+            }, 1000)
+        }else{
+            message.error = '退出失败'
+        }
+    })
+  }
 
   
     return (
@@ -46,6 +68,9 @@ const AdminIndex = () => {
         <Menu.Item key="9" icon={<FileOutlined />} >
             <span>留言管理</span>
         </Menu.Item>
+        <Menu.Item key="10" onClick = {handleExit} icon = {<PoweroffOutlined />}>
+            <span>退出登录</span>
+        </Menu.Item>
         </Menu>
     </Sider>
     <Layout className="site-layout">
@@ -59,8 +84,9 @@ const AdminIndex = () => {
             <div>
                 <div style={{ padding: 24, background: '#ffffff', minHeight: 360 }}>
                     {/* 一般 来讲 Route 外必须要有 Router 来进行包裹 但是 在这种情况下是不需要的 因为在这种情况下 Router 不需要执行捕获路由的工作 既不需要监听路由的 变化 */}
-                    <Router>  
-                        <Route path = '/index/' exact component = {AddArticle} />
+                    <Router>
+                        {/* 监听到 router 改变成 /index 才会改变   */}
+                       <Route path = '/index/' exact component = {AddArticle} />
                     </Router>
                 </div>
             </div>
