@@ -41,7 +41,8 @@ const AddArticle = (props) => {
     const [ upDate, setUpDate ] = useState()                         // 更新的时间
     const [ typeInfoList, setTypeInfoList ] = useState([])           // 文章的类别 列表
     const [ selectType, setSelectType ] = useState(1)                // 默认为第一个
-    
+    const [ buttonString, setButtonString ] = useState("发布文章")
+
     // 编写实时预览的 函数 两个 Html 都需要
     // 原理是监听 改变 然后对应做出修改
     // 文章主要内容
@@ -122,15 +123,35 @@ const AddArticle = (props) => {
                 data:dataProps,
                 withCredentials:true
             }).then((res) => {
-                // setArticleId(res.data.insertId)
-                console.log(res.data);
                 if (res.data.isScussess) {
+                    setArticleId(res.data.articleId);
+                    setButtonString("更新文章");
                     message.success('文章保存成功');
                 }else {
                     message.error('文章保存失败');
                 }
             })
+        }else {
+            // 进入 更新方法 将数据 传入后台进行 更新
+            // 参数增加 Id
+            dataProps.upDateId = articleId;
+           
+            axios({
+                method:'post',
+                url:servicePath.upDateArticle,
+                data: dataProps,
+                withCredentials:true
+            }).then((res) => {
+                // TODO
+                console.log(res.data)
+                if(res.data.isScussess){
+                    message.success('修改成功');
+                }else{
+                    message.error('修改失败');
+                }
+            })
         }
+
     }
     
     // 在useEffect 中进行使用
@@ -194,7 +215,7 @@ const AddArticle = (props) => {
             <Col span ={24}>
                 
                 <Button size = "mid" >暂存文章</Button>&nbsp;&nbsp;
-                <Button type = "primary" size = "mid" onClick = {saveArticle}>发布文章</Button>
+                    <Button type = "primary" size = "mid" onClick = {saveArticle}>{buttonString}</Button>
             </Col>
         </Row>
 
@@ -208,6 +229,7 @@ const AddArticle = (props) => {
                     onChange = {changeIntroduce}
                     onPressEnter = {changeIntroduce}
                 />
+                <h1>{articleId}</h1>
                 <br></br>
                 <br></br>
                 <div 

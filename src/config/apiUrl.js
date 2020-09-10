@@ -5,6 +5,7 @@ const servicePath = {
     'getTypeInfo': `${ipUrl}getTypeInfo`,
     'outLogin'   : `${ipUrl}outLogin`,
     'addArticle' : `${ipUrl}addArticle`,
+    'upDateArticle': `${ipUrl}upDateArticle`
 }
 
 export default servicePath;
