@@ -14,7 +14,9 @@ import AddArticle from './AddArticle';
 // eslint-disable-next-line
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import Axios from 'axios';
-import servicePath from '../config/apiUrl'
+import servicePath from '../config/apiUrl';
+import ShowMe from '../pages/showMe';
+import ArticleList from '../pages/ArticleList';
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
@@ -43,6 +45,18 @@ const AdminIndex = (props) => {
             message.error = '退出失败'
         }
     })
+  };
+
+  const showMefun = () => {
+      props.history.push('/index/showMe/');
+  };
+
+  const handleClickArticle = () => {
+      props.history.push('/index/list/');
+  };
+
+  const addArt = () => {
+      props.history.push('/index/add/')
   }
 
   
@@ -54,20 +68,26 @@ const AdminIndex = (props) => {
         <Menu.Item key="1" icon={<PieChartOutlined />}>
             <span>工作台</span>
         </Menu.Item>
-        <Menu.Item key="2" icon={<EditOutlined />}>
+        <Menu.Item 
+            key="2" 
+            icon={<EditOutlined />}
+            onClick = {addArt}
+        >
             <span>添加文章</span>
         </Menu.Item>
-        <SubMenu key="sub1" icon={<RadarChartOutlined />} title="文章管理">
-            <Menu.Item key="3">添加文章</Menu.Item>
-            <Menu.Item key="4">文章列表</Menu.Item>
-        </SubMenu>
+        
+        <Menu.Item
+            key="sub1" 
+            onClick={handleClickArticle}
+            icon={<RadarChartOutlined />} 
+        >
+            <span>文章列表</span>
+        </Menu.Item>
+
         <SubMenu key="sub2" icon={<TeamOutlined />} title="管理员">
-            <Menu.Item key="6">孔格</Menu.Item>
+            <Menu.Item key="6" onClick = {showMefun}>孔格</Menu.Item>
             <Menu.Item key="8">其它管理员</Menu.Item>
         </SubMenu>
-        <Menu.Item key="9" icon={<FileOutlined />} >
-            <span>留言管理</span>
-        </Menu.Item>
         <Menu.Item key="10" onClick = {handleExit} icon = {<PoweroffOutlined />}>
             <span>退出登录</span>
         </Menu.Item>
@@ -84,10 +104,13 @@ const AdminIndex = (props) => {
             <div>
                 <div style={{ padding: 24, background: '#ffffff', minHeight: 360 }}>
                     {/* 一般 来讲 Route 外必须要有 Router 来进行包裹 但是 在这种情况下是不需要的 因为在这种情况下 Router 不需要执行捕获路由的工作 既不需要监听路由的 变化 */}
-                    <Router>
+                    <div>
                         {/* 监听到 router 改变成 /index 才会改变   */}
-                       <Route path = '/index/' exact component = {AddArticle} />
-                    </Router>
+                       <Route path = '/index/' exact  component = {AddArticle} />
+                       <Route path = '/index/add/' exact  component = {AddArticle} />
+                       <Route path = '/index/showMe/'   component = {ShowMe}/>
+                       <Route path = '/index/list/' exact  component = {ArticleList} />
+                    </div>
                 </div>
             </div>
         </div>

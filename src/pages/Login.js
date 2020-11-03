@@ -60,7 +60,7 @@ const Login = (props) => {
     return(
         <div className = 'login_div'>
             <Spin tip ="loading..." spinning={isLoading}>
-                <Card className='title' title = "KongGe Blog System" bordered = {true} style = {{width : 400}}>
+                <Card className='title' title = "KongGe Blog Systema" bordered = {true} style = {{width : 400}}>
                     <Input
                         id = 'userName'
                         size = 'large'

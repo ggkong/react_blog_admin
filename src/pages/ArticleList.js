@@ -2,12 +2,27 @@ import React,{useState,useEffect} from 'react';
 import '../static/css/ArticleList.css'
 import { List ,Row ,Col , Modal ,message ,Button,Switch} from 'antd';
 import axios from 'axios'
-import  servicePath  from '../config/apiUrl'
+import  servicePath  from '../config/apiUrl';
 const { confirm } = Modal;
 
 function ArticleList(props){
-
-    const [ list, setList ] = useState([])
+    const [ list, setList ] = useState([]);
+    const getList = () => {
+        axios({
+            method: 'get',
+            url: servicePath.getArticleList,
+            withCredentials: true,
+            header: {'Access-Control-Allow-Origin':'*'}
+        }).then(
+            res => {
+                setList(res.data.list)
+            }
+        )
+    }
+    // 模仿生命周期函数
+    useEffect(()=>{
+        getList()
+    },[]);
     return (
         <div>
              <List
@@ -17,13 +32,13 @@ function ArticleList(props){
                             <b>标题</b>
                         </Col>
                         <Col span={3}>
+                            <b>编号</b>
+                        </Col>
+                        <Col span={3}>
                             <b>类别</b>
                         </Col>
                         <Col span={3}>
                             <b>发布时间</b>
-                        </Col>
-                        <Col span={3}>
-                            <b>集数</b>
                         </Col>
                         <Col span={3}>
                             <b>浏览量</b>
@@ -44,13 +59,13 @@ function ArticleList(props){
                                 {item.title}
                             </Col>
                             <Col span={3}>
+                                {item.id}
+                            </Col>
+                            <Col span={3}>
                              {item.typeName}
                             </Col>
                             <Col span={3}>
                                 {item.addTime}
-                            </Col>
-                            <Col span={3}>
-                                共<span>{item.part_count}</span>集
                             </Col>
                             <Col span={3}>
                               {item.view_count}
@@ -58,7 +73,6 @@ function ArticleList(props){
 
                             <Col span={4}>
                               <Button type="primary" >修改</Button>&nbsp;
-
                               <Button >删除 </Button>
                             </Col>
                         </Row>
