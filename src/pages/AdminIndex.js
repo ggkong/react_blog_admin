@@ -108,8 +108,10 @@ const AdminIndex = (props) => {
                         {/* 监听到 router 改变成 /index 才会改变   */}
                        <Route path = '/index/' exact  component = {AddArticle} />
                        <Route path = '/index/add/' exact  component = {AddArticle} />
-                       <Route path = '/index/showMe/'   component = {ShowMe}/>
+                       <Route path = '/index/add/:id' exact component = {AddArticle} />
+                       <Route path = '/index/showMe/'  exact component = {ShowMe}/>
                        <Route path = '/index/list/' exact  component = {ArticleList} />
+                       
                     </div>
                 </div>
             </div>

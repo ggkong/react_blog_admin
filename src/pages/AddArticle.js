@@ -89,6 +89,19 @@ const AddArticle = (props) => {
         setSelectType(value); // 将 type设置为 传进来的 value
     }
 
+    const getArticleById = (id) => {
+        axios(servicePath.getArticleById+id).then(
+            res => {
+                const articleByAjax = res.data.data[0];
+                setArticleTitle(articleByAjax.title);
+                setArticleContent(articleByAjax.article_content);
+                const html = marked(articleByAjax.article_content);
+                setArticleContentHmtl(html);
+                setIntroduce(articleByAjax.introduce);
+                setIntroduceHtml(marked(articleByAjax.introduce));
+            }
+        )
+    };
     // 文章进行保存 校验 
     const saveArticle = () => {
         // 进行教研
@@ -105,6 +118,7 @@ const AddArticle = (props) => {
             message.error('发布日期不能为空')
             return false
         }
+
 
         // 文章通过校验 
         const dataProps = {} // 传递给后台的参数
@@ -157,6 +171,11 @@ const AddArticle = (props) => {
     // 在useEffect 中进行使用
     useEffect(() => {
         getTypeInfo();
+        const tmpId = props.match.params.id;
+        if(tmpId) {
+            setArticleId(tmpId)
+            getArticleById(tmpId)
+        }
     // eslint-disable-next-line
     },[])   // 如果什么东西都不加 表示 就是当组件将被销毁时才进行解绑
     
@@ -168,6 +187,7 @@ const AddArticle = (props) => {
             <Row gutter={5} >
                 <Col span={20}>
                     <Input 
+                          value = {articleTitle}
                           placeholder="博客标题" 
                           size="large" 
                           onChange = {(e) => {
@@ -229,7 +249,7 @@ const AddArticle = (props) => {
                     onChange = {changeIntroduce}
                     onPressEnter = {changeIntroduce}
                 />
-                <h1>{articleId}</h1>
+                {/* <h1>{articleId}</h1> */}
                 <br></br>
                 <br></br>
                 <div 

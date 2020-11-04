@@ -19,6 +19,32 @@ function ArticleList(props){
             }
         )
     }
+    const delArticle = (id) => {
+        console.log("删除文章")
+        console.log(id)
+        confirm({
+            title: "确定要删除文章？",
+            content: "如果点击ok按钮，文章将被永久删除，无法恢复！",
+            onOk(){
+                axios(servicePath.delArticle+id).then(
+                    res => {
+                        message.success("文章删除成功")
+                        getList()
+                    }
+                )
+            },
+            onCancel(){
+                message.success("文章没有变化")
+            }
+        })
+        
+    }
+    
+    const updateArticle = (id) => {
+        // 跳转的  修改界面
+        props.history.push('/index/add/'+id);
+    }
+    
     // 模仿生命周期函数
     useEffect(()=>{
         getList()
@@ -72,8 +98,8 @@ function ArticleList(props){
                             </Col>
 
                             <Col span={4}>
-                              <Button type="primary" >修改</Button>&nbsp;
-                              <Button >删除 </Button>
+                              <Button type="primary" onClick = {() => {updateArticle(item.id)}}>修改</Button>&nbsp;
+                              <Button onClick = {() => {delArticle(item.id)}}>删除 </Button>
                             </Col>
                         </Row>
 
